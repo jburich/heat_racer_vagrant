@@ -1,0 +1,24 @@
+---
+- hosts: all
+  become: true
+
+  tasks:
+    - copy: src=HS2ANSIBLE dest=/etc/HS2ANSIBLE owner=root group=root mode=0600
+      register: firstrun_status
+
+    - name: Install OS updates
+      package: name=* state=latest
+      when: firstrun_status.changed
+
+    - name: Install python bindings for SE Linux
+      package: name={{ item }} state=present
+      with_items:
+        - libselinux-python
+        - libsemanage-python
+
+    - name: Disable SELinux
+      selinux: state=disabled
+      register: selinux_status
+
+  roles:
+    - geerlingguy.repo-epel

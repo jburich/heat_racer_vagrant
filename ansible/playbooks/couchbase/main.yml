@@ -1,0 +1,53 @@
+---
+- hosts: couchbase
+  become: true
+
+  roles:
+    - couchbaselabs.couchbase-server
+
+  vars_files:
+    - couchbase_vars.yml
+
+  tasks:
+  - name: Make sure index directory exists
+    file: path={{ couchbase_server_index_path }} state=directory owner=couchbase group=couchbase mode=0770
+
+  - name: Make sure data directory exists
+    file: path={{ couchbase_server_data_path }} state=directory owner=couchbase group=couchbase mode=0770
+
+  - name: Couchbase Server Service
+    service: name=couchbase-server state=started
+
+  - name: Get major version
+    shell: cat /opt/couchbase/VERSION.txt | cut -d '.' -f1
+    register: cb_major_version
+
+  - name: Wait for Admin
+    wait_for: "port={{ couchbase_server_admin_port }} delay=2"
+
+  - name: Check for initialized node
+    shell: "{{ couchbase_server_bin_path }}/couchbase-cli server-list -c {{ couchbase_server_primary_node }}:{{ couchbase_server_admin_port }} --user={{ couchbase_server_admin }} --password={{ couchbase_server_password }}"
+    register: couchbase_server_health
+    ignore_errors: yes
+
+  - debug: msg="couchbase_server_health {{ couchbase_server_health['stdout'] }}"
+
+  - name: Initialize primary node
+    shell: "{{ couchbase_server_bin_path }}/couchbase-cli node-init -c {{ couchbase_server_primary_node }}:{{ couchbase_server_admin_port }} --user={{ couchbase_server_admin }} --password={{ couchbase_server_password }} --cluster-init-username={{ couchbase_server_admin }} --node-init-hostname={{ ansible_fqdn }} --node-init-data-path={{ couchbase_server_data_path }} --node-init-index-path={{ couchbase_server_index_path }} --node-init-hostname={{ couchbase_server_primary_node }}"
+    when: ("'{{ couchbase_server_primary_node }}' not in couchbase_server_health['stdout']" or "'ERROR' in couchbase_server_health['stdout']")
+
+  - name: Wait for Admin
+    wait_for: "port={{ couchbase_server_admin_port }} delay=2"
+
+  - name: Configure cluster settings
+    shell: "{{ couchbase_server_bin_path }}/couchbase-cli cluster-init -c {{ couchbase_server_primary_node }}:{{ couchbase_server_admin_port }} --user={{ couchbase_server_admin }} --password={{ couchbase_server_password }} --cluster-init-username={{ couchbase_server_admin }} --cluster-init-password={{ couchbase_server_password }} --cluster-init-port={{couchbase_server_admin_port}} --cluster-init-ramsize={{ couchbase_server_ram }} --services={{ couchbase_server_node_services }}"
+    when: "'healthy active' not in couchbase_server_health['stdout']"
+
+  - name: Wait for Admin
+    wait_for: "port={{ couchbase_server_admin_port }} delay=2"
+
+  - include: create_bucket.yml bucket_name=client_data
+
+  - include: create_bucket.yml bucket_name=content
+
+  - include: create_bucket.yml bucket_name=content_meta_data

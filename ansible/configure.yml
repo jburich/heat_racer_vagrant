@@ -1,0 +1,5 @@
+---
+- include: playbooks/all/main.yml
+- include: playbooks/angular2/main.yml
+- include: playbooks/couchbase/main.yml
+- include: playbooks/sync-gateway/main.yml

@@ -1,0 +1,13 @@
+---
+- name: Check bucket existance
+  uri:
+    url: "http://{{ ansible_fqdn }}:{{ couchbase_server_admin_port }}/pools/default/buckets/{{ bucket_name }}/stats"
+    return_content: yes
+    user: "{{ couchbase_server_admin }}"
+    password: "{{ couchbase_server_password }}"
+    status_code: 200, 404
+  register: webpage
+
+- name: Create bucket
+  shell: "{{ couchbase_server_bin_path }}/couchbase-cli bucket-create -c {{ ansible_fqdn }}:{{ couchbase_server_admin_port }} --user={{ couchbase_server_admin }} --password={{ couchbase_server_password }} --bucket={{ bucket_name }} --bucket-password={{ bucket_name }} --bucket-type={{ couchbase_server_bucket_type }}  --bucket-ramsize={{ couchbase_server_bucket_ram }} --bucket-replica={{ couchbase_server_bucket_replica }}"
+  when: "'not found' in webpage.content"

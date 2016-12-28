@@ -1,0 +1,34 @@
+{
+        "log": ["*"],
+        "adminInterface": ":4985",
+        "interface": ":4984",
+        "databases": {
+                "client_data": {
+                        "server": "http://couchbase.in2l:8091",
+                        "bucket": "client_data",
+                        "username": "client_data",
+                        "password": "client_data",
+                        "users": {
+                                "GUEST": {"disabled": false, "admin_channels": ["*"] }
+                        }
+                },
+                "content_meta_data": {
+                        "server": "http://couchbase.in2l:8091",
+                        "bucket": "content_meta_data",
+                        "username": "content_meta_data",
+                        "password": "content_meta_data",
+                        "users": {
+                                "GUEST": {"disabled": false, "admin_channels": ["*"] }
+                        }
+                },
+                "content": {
+                        "server": "http://couchbase.in2l:8091",
+                        "bucket": "content",
+                        "username": "content",
+                        "password": "content",
+                        "users": {
+                                "GUEST": {"disabled": false, "admin_channels": ["*"] }
+                        }
+                }
+        }
+}

@@ -1,0 +1,9 @@
+nodejs_version: "6.x"
+npm_config_unsafe_perm: "true"
+nodejs_npm_global_packages:
+  - name: webpack
+  - name: webpack-dev-server
+  - name: karma-cli
+  - name: protractor
+  - name: typescript
+nodejs_install_npm_user: "{{ ansible_ssh_user }}"

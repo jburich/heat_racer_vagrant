@@ -1,0 +1,8 @@
+[angular]
+ng.hr ansible_host=10.225.0.110
+
+[sync-gateway]
+syncgw.hr ansible_host=10.225.0.120
+
+[couchbase]
+couchbase.hr ansible_host=10.225.0.130

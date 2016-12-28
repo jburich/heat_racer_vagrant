@@ -1,0 +1,4 @@
+rvm1_rubies:
+  - 'ruby-2.3.1'
+
+rvm1_user: "{{ ansible_ssh_user }}"

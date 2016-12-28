@@ -1,0 +1,40 @@
+---
+- hosts: ruby
+  become: true
+
+  pre_tasks:
+    - name: Grant vagrant user ownership of /usr/local/rvm
+      file: path=/usr/local/rvm state=directory owner="{{ ansible_ssh_user }}" group="{{ ansible_ssh_user }}" mode=0775
+
+    - name: Install GPG package
+      package: name=gnupg2 state=installed
+
+    - name: Import RVM GPG key
+      command: "gpg2 --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3"
+
+  roles:
+    - rvm_io.rvm1-ruby
+
+  vars_files:
+    - ruby_vars.yml
+
+  tasks:
+    - name: Enable couchbase yum repo
+      yum: name=http://packages.couchbase.com/releases/couchbase-release/couchbase-release-1.0-2-x86_64.rpm state=installed
+
+    - name: Install couchbase SDK
+      yum: name={{ item }} state=installed
+      with_items:
+        - libcouchbase-devel
+        - libcouchbase2-bin
+        - gcc
+        - gcc-c++
+
+    - name: Install ImageMagick
+      package: name=ImageMagick state=present
+
+    - name: Install ghostscript
+      package: name=ghostscript state=present
+
+    - name: Install NPM
+      package: name=npm state=present

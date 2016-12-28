@@ -1,0 +1,23 @@
+---
+- hosts: sync-gateway
+  become: true
+
+# this needs to be made distro-agnostic!!!  #DEVOPSCLEANUP
+
+  tasks:
+    - name: Install couchbase sync gateway
+      yum: name=http://packages.couchbase.com/releases/couchbase-sync-gateway/1.3.1/couchbase-sync-gateway-community_1.3.1-16_x86_64.rpm state=present
+
+    - name: Copy config file 
+      # good golly, this needs to be a template with proper vars #DEVOPSCLEANUP
+      copy: src=sync_gateway.json dest=/home/sync_gateway/sync_gateway.json owner=sync_gateway group=sync_gateway mode=0644
+      # restart sync gateway if file has changed
+      notify:
+        - restart sync gateway
+
+    - name: start sync gateway, enable on boot
+      service: name=sync_gateway state=started enabled=yes
+
+  handlers:
+    - name: restart sync gateway
+      service: name=sync_gateway state=restarted

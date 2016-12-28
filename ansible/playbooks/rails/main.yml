@@ -1,0 +1,20 @@
+---
+- hosts: rails
+
+  environment:
+    rvm_bin_path: /usr/local/rvm/bin
+    GEM_HOME: /usr/local/rvm/gems/ruby-2.3.1
+    IRBRC: /usr/local/rvm/rubies/ruby-2.3.1/.irbrc
+    MY_RUBY_HOME: /usr/local/rvm/rubies/ruby-2.3.1
+    rvm_path: /usr/local/rvm
+    rvm_prefix: /usr/local
+    PATH: /usr/local/rvm/gems/ruby-2.3.1/bin:/usr/local/rvm/gems/ruby-2.3.1@global/bin:/usr/local/rvm/rubies/ruby-2.3.1/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/rvm/bin:/root/bin
+    GEM_PATH: /usr/local/rvm/gems/ruby-2.3.1:/usr/local/rvm/gems/ruby-2.3.1@global
+
+
+  tasks:
+    - name: Install rails gem
+      shell: gem install rails
+      args:
+        creates: /usr/local/rvm/gems/ruby-2.3.1/bin/rails
+
